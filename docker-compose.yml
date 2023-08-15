@@ -1,0 +1,67 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    volumes:
+      - /var/lib/rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    env_file:
+      - .env
+  auth:
+    build:
+      context: ./
+      dockerfile: ./apps/auth/Dockerfile  
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - postgres
+    volumes:
+      - "/c/Users/OFUZOR IFEANYICHUKWU/Documents/nestjs/micro_service:/usr/src/app"
+      - "/c/Users/OFUZOR IFEANYICHUKWU/Documents/nestjs/micro_service:/usr/src/app/node_modules"
+      # - /usr/src/app/node_modules
+    command: npm run start:dev auth  
+
+  micro_service:
+    build:
+      context: ./
+      dockerfile: ./apps/micro_service/Dockerfile  
+    env_file:
+      - .env
+    ports:
+      - '4000:5000'  
+    depends_on:
+      - rabbitmq
+      - auth
+    volumes:
+      - "/c/Users/OFUZOR IFEANYICHUKWU/Documents/nestjs/micro_service:/usr/src/app"
+      - "/c/Users/OFUZOR IFEANYICHUKWU/Documents/nestjs/micro_service:/usr/src/app/node_modules"
+      # - /usr/src/app/node_modules
+    command: npm run start:dev micro_service
+
+  postgres:
+     image: postgres
+     environment:
+      POSTGRES_PASSWORD: ofuzor2001
+      POSTGRES_DB: messenger      
+     restart: always
+    #  hostname: 127.0.0.1
+     env_file:
+      - .env
+     ports:
+       - '5434:5432'
+     volumes:
+       - ./db/data:/var/lib/postgresql/data
+  
+  postgres_admin:
+     image: dpage/pgadmin4
+     depends_on:
+      - postgres
+     env_file:
+      - .env
+     ports:
+       - '15432:80'  
