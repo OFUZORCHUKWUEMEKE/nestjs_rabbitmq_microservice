@@ -35,7 +35,7 @@ services:
     ports:
       - '4000:5000'  
     depends_on:
-      - rabbitmq
+      - rabbitmq 
       - auth
     volumes:
       - "/c/Users/OFUZOR IFEANYICHUKWU/Documents/nestjs/micro_service:/usr/src/app"
